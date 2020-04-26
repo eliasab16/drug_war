@@ -1,0 +1,12 @@
+name: drug_war
+title: drug_war
+username:
+account: eliasab
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 2187220
+bundleId: 3065674
+url: https://eliasab.shinyapps.io/drug_war/
+when: 1587874747.99314
+asMultiple: FALSE
+asStatic: FALSE
