@@ -1,0 +1,169 @@
+---
+title: "data_exploration"
+author: "Elias"
+date: "03/04/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+library(haven)
+library(janitor)
+library(readxl)
+library(skimr)
+library(rvest)
+library(broom)
+library(ggthemes)
+library(gganimate)
+library(tidyverse)
+```
+
+```{r}
+url <- "https://www.drugwarfacts.org/node/234#overlay=table/annual-drug-arrests"
+webpage <- read_html(url)
+
+arrests <- webpage %>% 
+  html_node(., "table") 
+```
+
+
+```{r load data}
+budget <- read_csv("raw_data/usa/budget.csv", col_types = cols())
+arrests <- read_csv("raw_data/usa/arrests.csv", col_types = cols())
+meth_purity <- read_excel("raw_data/usa/purity/meth_purity_1981_2018.xlsx")
+heroin_purity <- read_excel("raw_data/usa/purity/heroin_purity_1981_2017.xlsx")
+overdose <- read_excel("raw_data/usa/overdose/comprehensive_overdose_1999_2018.xlsx")
+spending <- read_excel("raw_data/usa/budget_reports/drug_control_spending_1995_2018.xlsx")
+thc_9 <- read_excel("raw_data/usa/purity/cannabis_thc_9_concentration.xlsx")
+heroin_production <- read_excel("raw_data/usa/mexico_production.xlsx")
+```
+
+```{r spending-overdose}
+spending_overdose <- spending %>% 
+  inner_join(overdose, by = "year") %>% 
+  mutate(total_spending = total.x/1000,
+         total_deaths = total.y) %>% 
+  select(year, total_spending, total_deaths)
+
+spending_overdose %>%
+  ggplot(aes(x = year)) +
+  geom_line(aes(y = total_spending), size = 1.5, color = "#5BBC4A") +
+  geom_line(aes(y = total_deaths/2600), size = 1.5, color = "#A91F00") +
+  scale_y_continuous(name = "Total Spending ($Billions)",
+                     sec.axis = sec_axis(~.*2600, name = "Total Deaths"),
+                     breaks = c(5, 10, 15, 20, 25, 30, 35, 40)) +
+  scale_x_continuous(name = "Year", breaks = c(2000, 2002, 2004, 2006, 2008,
+                                               2010, 2012, 2014, 2016, 2018),
+                     labels = c("2000", "'02'", "'04'", "'06'", "'08'", "'10'",
+                                "'12'", "'14'", "'16'", "'18'")) +
+  labs(
+    title = "Trends in Drug Enforcement Spending and Total Overdose Deaths\n United States 1999-2018",
+    subtitle = "(Spending Both on Prevention and Treatment)",
+    caption = "sources: ONDCP; NCHS") +
+  theme_calc() +
+  theme(
+    axis.title.x = element_text(size = 15),
+    axis.title.y = element_text(size = 15, color = "#519E44"),
+    axis.title.y.right = element_text(size = 15, color = "#A91F00", angle = 90)
+    
+  ) +
+  geom_text(aes(x = year - 0.7, y = total_deaths/2600 + 1,
+                label = paste(round(total_deaths/1000, 0), "K")),
+                hjust = 0, color = "#A91F00", size = 4) +
+  geom_text(aes(x = year - 1, y = total_spending + 1.2,
+                label = paste("$", round(total_spending, 1), "B")),
+                hjust = 0, color = "#5BBC4A", size = 4) +
+  transition_reveal(year)
+
+```
+
+
+```{r purity}
+spending_purity <- meth_purity %>% 
+  inner_join(heroin_purity, by = "year") %>% 
+  inner_join(spending, by = "year") %>% 
+  inner_join(thc_9, by = "year") %>% 
+  mutate(meth = purity.x,
+         heroin = purity.y,
+         thc_9_concentration = thc_delta_9,
+         total = total/1000) %>% 
+  select(year, meth, heroin, total, thc_9_concentration)
+
+spending_purity %>% 
+  lm(thc_9_concentration~total, data = .) %>% 
+  tidy(conf.int = TRUE)
+
+spending_purity %>% 
+  ggplot(aes(x = total, y = meth * 100)) +
+  geom_point(color = "#FFC300") +
+  geom_smooth(method = "lm", se = F, color = "#900C3F") +
+  labs(
+    x = "Spending in $Billions",
+    y = "%"
+  ) +
+  ylim(0, 100) +
+  theme_calc()
+
+spending_purity %>% 
+  ggplot(aes(x = total, y = thc_9_concentration)) +
+  geom_point(color = "#138D75") +
+  geom_smooth(method = "lm", se = F, color = "#900C3F") +
+  labs(
+   x = "Spending in $Billions",
+   y = "% Concentration"
+  ) +
+  ylim(0, 30) +
+  theme_calc()
+```
+
+
+```{r}
+supply_production <- spending %>% 
+  inner_join(heroin_production, by = "year") %>% 
+  mutate(supply_reduction = supply_reduction/1000) %>% 
+  select(year, supply_reduction, mexico)
+
+supply_production %>% 
+  ggplot(aes(x = year)) +
+  geom_line(aes(y = supply_reduction), size=1.5, color = "#5BBC4A") +
+  geom_bar(aes(y = mexico/5), stat="identity", size=.1, fill = "#EA9E36",
+           color="black", alpha=.5) +
+  scale_y_continuous(
+    name = "Spending on Supply Reduction ($Billions)",
+    sec.axis = sec_axis(~.*5, name = "Heroin Production in Mexico\n(Metric Tons)")
+  ) +
+  theme_calc() +
+  theme(
+    axis.title.x = element_text(size = 15),
+    axis.title.y = element_text(size = 15, color = "#519E44"),
+    axis.title.y.right = element_text(size = 15, color = "#EA9E36", angle = 90)
+    
+  ) +
+  labs(
+    title = "Trends in US Spending on Drug Supply Reduction\nand Estimated Heroin Production in Mexico",
+    subtitle = "(Mexico is the main supplier of US heroin)",
+    caption = "sources: INCSR; ONDCP",
+    x = "Year"
+  )
+```
+
+```{r}
+spending %>% 
+  ggplot(aes(x = year)) +
+  geom_col(aes(y = supply_reduction/1000), color = "#519E44") +
+  theme_calc() + 
+  theme(
+    axis.title.x = element_text(size = 15),
+    axis.title.y = element_text(size = 15, color = "#519E44")) +
+  labs(
+    title = "U.S. Spending on Supply Reduction (1995-2018)",
+    subtitle = "Including local law enforcement, interdiction, and international.",
+    x = "Year",
+    y = "Spending in $Billions",
+    caption = "Source: ONDCP"
+  ) +
+  transition_time(year) +
+  shadow_mark()
+```
+
