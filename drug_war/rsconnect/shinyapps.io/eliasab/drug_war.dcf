@@ -5,8 +5,8 @@ account: eliasab
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 2187220
-bundleId: 3065674
+bundleId: 3075733
 url: https://eliasab.shinyapps.io/drug_war/
-when: 1587874747.99314
+when: 1588058464.37928
 asMultiple: FALSE
 asStatic: FALSE

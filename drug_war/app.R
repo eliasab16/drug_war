@@ -17,6 +17,7 @@ library(broom)
 library(ggthemes)
 library(gganimate)
 library(shinythemes)
+library(gifski)
 library(tidyverse)
 
 # variables for data analysis and viz
@@ -55,7 +56,7 @@ ui <- navbarPage("The War on Drugs",
                                                      
                                                      # brief explanation
                                                      
-                                                     p("The U.S. War on Drugs has been going on for 40 decades, with each year witnessing a doubling down on
+                                                     p("The U.S. War on Drugs has been going on for 4 decades, with each year witnessing a doubling down on
                                                        spending and law enforcement. However, all these efforts seem to be futile in eradicating the drug crisis
                                                        in the United States: the crisis is worsening. Many liberal thinkers - mainly Libertarians - 
                                                        have been advocating for putting an end to this War, claiming that it is counterproductive. In this project,
@@ -101,7 +102,11 @@ ui <- navbarPage("The War on Drugs",
                                       
                                       br(),
                                       
-                                      mainPanel(plotOutput("overdosePlot"))),
+                                      fluidRow(
+                                        column(2), column(8, align="center",
+                                               plotOutput("overdosePlot"))
+                                        )
+                                      ),
                              
                              tabPanel("Spending",
                                       
@@ -121,27 +126,30 @@ ui <- navbarPage("The War on Drugs",
                              
                              tabPanel("Drug Potency",
                                       
-                                      h2("Purity and Potency Trends of Drugs in U.S. Markets"),
-                                      
-                                      br(),
-                                      
-                                      h3("Changes in Meth Purity (Illegal U.S. Markets 1981-2018)"),
-                                      h4("The Purer the drug, the more effective and deadlier"),
-                                      br(),
-                                      
-                                      plotOutput("methPlot", width = "100%"),
-                                      br(),
-                                      br(),
-                                      
-                                      h3("Changes in Delta-9 THC Concentration in Cannabis (Illegal U.S. Markets 1995-2018)"),
-                                      br(),
-                                      
-                                      plotOutput("thcPlot", width = "100%"),
-                                      br(),
-                                      br()
-                         ))
-                          
-                 ),
+                                      fluidRow(
+                                        column(2), column(8, align="center",
+                                                h2("Purity and Potency Trends of Drugs in U.S. Markets"),
+                                                
+                                                br(),
+                                                
+                                                h3("Changes in Meth Purity (Illegal U.S. Markets 1981-2018)"),
+                                                h4("The Purer the drug, the more effective and deadlier"),
+                                                br(),
+                                                
+                                                plotOutput("methPlot", width = "100%"),
+                                                br(),
+                                                br(),
+                                                
+                                                h3("Changes in Delta-9 THC Concentration in Cannabis (Illegal U.S. Markets 1995-2018)"),
+                                                br(),
+                                                
+                                                plotOutput("thcPlot", width = "100%"),
+                                                br(),
+                                                br()
+                                               
+                                        )
+                                      )))),
+                             
                  
                  ##
                  ## Correlations ##
@@ -162,43 +170,47 @@ ui <- navbarPage("The War on Drugs",
                                        br(),
                                        br(),
                                        
-                                       mainPanel(imageOutput("spendingOverdosePlot", width = "100%"))),
+                                       fluidRow(
+                                         column(2), column(8, align="center",
+                                                mainPanel(imageOutput("spendingOverdosePlot", width = "100%")))
+                                                )),
                               
                               # correlation between spending and drug potency
                               
                               tabPanel("Spending & Potency",
                                        
-                                       h3("Correlation Between Spending and Meth Purity in Illegal U.S. Markets", 
-                                          align="center"),
-                                       h4("(Spending Both on Prevention and Treatment)", 
-                                          align = "center"),
-                                       
-                                       br(),
-                                       
-                                       plotOutput("spendingMethPlot", width = "100%"),
-                                       
-                                       br(),
-                                       br(),
-                                       
-                                       h3("Correlation Between Spending and Delta-9 THC Concentration in Cannabis in Illegal U.S. Markets", 
-                                          align="center"),
-                                       h4("(Spending Both on Prevention and Treatment)", 
-                                          align = "center"),
-                                       
-                                       br(),
-                                       
-                                       plotOutput("spendingThcPlot", width = "100%"),
-                                       
-                                       br(),
-                                       br()
-                                       ),
-                            
+                                       fluidRow(
+                                         column(2), column(8, align="center",
+                                                 h3("Correlation Between Spending and Meth Purity in Illegal U.S. Markets", 
+                                                    align="center"),
+                                                 h4("(Spending Both on Prevention and Treatment)", 
+                                                    align = "center"),
+                                                 
+                                                 br(),
+                                                 
+                                                 plotOutput("spendingMethPlot", width = "100%"),
+                                                 
+                                                 br(),
+                                                 br(),
+                                                 
+                                                 h3("Correlation Between Spending and Delta-9 THC Concentration in Cannabis in Illegal U.S. Markets", 
+                                                    align="center"),
+                                                 h4("(Spending Both on Prevention and Treatment)", 
+                                                    align = "center"),
+                                                 
+                                                 br(),
+                                                 
+                                                 plotOutput("spendingThcPlot", width = "100%"),
+                                                 
+                                                 br(),
+                                                 br()
+                                         ))),
                               
                               # trends of spending and heroin production
                               
                               tabPanel("Spending & Production",
                                        
-                                       h3("Trends in U.S. Spending on Supply Reduction \n and Estimated Heroin Production in Mexcio (1999-2018)", 
+                                       h3("Trends in U.S. Spending on Supply Reduction \n and Estimated Heroin Production in Mexcio (1999-2018)",
                                           align="center"),
                                        h4("(Mexican producers account for the majority of illicit drugs in the U.S.)", 
                                           align = "center"),
@@ -206,8 +218,11 @@ ui <- navbarPage("The War on Drugs",
                                        br(),
                                        br(),
                                        
-                                       mainPanel(plotOutput("spendingProductionPlot", width = "100%")))
-                          )))
+                                       fluidRow(
+                                         column(2), column(8, align="center",
+                                                plotOutput("spendingProductionPlot", width = "100%")
+                                         )
+                                       )))))
                  
                  # Define server logic required to draw a histogram
                  server <- function(input, output) {
@@ -380,13 +395,13 @@ ui <- navbarPage("The War on Drugs",
                      
                     # save the plot as a guf
                        
-                     anim_save("outfile.gif", animate(p))
+                       animate(p, nframes = 75, renderer = gifski_renderer("outfile.gif"))
                      
                      # Return a list containing the filename
                      
                      list(src = "outfile.gif",
                           contentType = 'image/gif',
-                          width = 900,
+                          width = 800,
                           height = 600
                      )}, deleteFile = TRUE)
                      
@@ -416,16 +431,16 @@ ui <- navbarPage("The War on Drugs",
                              ) +
                              theme_calc() +
                              theme(
-                                 axis.title.x = element_text(size = 15),
-                                 axis.title.y = element_text(size = 15, color = "#519E44"),
-                                 axis.title.y.right = element_text(size = 15, color = "#EA9E36", angle = 90)
+                                 axis.title.x = element_text(size = 20),
+                                 axis.title.y = element_text(size = 20, color = "#519E44"),
+                                 axis.title.y.right = element_text(size = 20, color = "#EA9E36", angle = 90)
                                  
                              ) +
                              labs(
                                  caption = "sources: INCSR; ONDCP",
                                  x = "Year"
                              )
-                     }, height = 600, width = 900)
+                     }, height = 700, width = 900)
                      
                      # spending and meth purity
                      
@@ -453,12 +468,24 @@ ui <- navbarPage("The War on Drugs",
                          ) +
                          ylim(0, 100) +
                          theme_calc()
-                     }, heigh = 500, width = 800)
+                     }, heigh = 600, width = 800)
                      
                      # spending and thc concentration
                      
                      output$spendingThcPlot <- renderPlot({
-
+                       
+                       # join all dataframes together
+                       
+                       spending_purity <- meth_purity %>% 
+                         inner_join(heroin_purity, by = "year") %>% 
+                         inner_join(spending, by = "year") %>% 
+                         inner_join(thc_9, by = "year") %>% 
+                         mutate(meth = purity.x,
+                                heroin = purity.y,
+                                thc_9_concentration = thc_delta_9,
+                                total = total/1000) %>% 
+                         select(year, meth, heroin, total, thc_9_concentration)
+                       
                        spending_purity %>% 
                          ggplot(aes(x = total, y = thc_9_concentration)) +
                          geom_point(color = "#138D75") +
@@ -469,7 +496,7 @@ ui <- navbarPage("The War on Drugs",
                          ) +
                          ylim(0, 30) +
                          theme_calc()
-                     }, heigh = 500, width = 800)
+                     }, heigh = 600, width = 800)
                  }
                  
                  # Run the application 
