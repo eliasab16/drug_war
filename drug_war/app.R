@@ -243,12 +243,12 @@ ui <- navbarPage("The War on Drugs",
                                                      
                                                      # brief explanation
                                                      
-                                                     p("As we have seenin the data visualizations, the amount of money the U.S. spends
+                                                     p("As we have seen in the data visualizations, the amount of money the U.S. spends
                                                        on fighting drugs, including on treatment and on domestic and international interdiction,
                                                        has been on an upward trend. The data at hand, which covers 1995 through 2019, show that
-                                                       total spending has spiked from around $7 billion to over $36 billion. 
+                                                       total spending has spiked from around $7 billion to over $36 billion."),
                                                        
-                                                       Other data, provided by government agencies, covering almost the same time period, suggest that
+                                                     p("Other data, provided by government agencies, covering almost the same time period, suggest that
                                                        spending is not mitigating the drug crisis, but it might be making it worse. First, 
                                                        running total spending and total overdose deaths trends on the same plot shows us that as law
                                                        enforcement and treatment spending was increasing, deaths from drug overdose were continuously
@@ -259,11 +259,11 @@ ui <- navbarPage("The War on Drugs",
                                                        around 1600% from 1999/2000 to 2017/2018. Finally, when we plotted a regression between drug control spending
                                                        and drug potency/purity, we got a positive regression line. The correlation coefficient was positive and
                                                        strong in both cases of running total spending against the purity of methamphetamine and the concentration
-                                                       of Delta-9 THC in cannabis, around +0.81 and +0.92, respectively.
+                                                       of Delta-9 THC in cannabis, around +0.81 and +0.92, respectively."),
                                                        
-                                                       Although we should not interpret these correlations as establishing causation relationships, they, nonetheless,
+                                                     p("Although we should not interpret these correlations as establishing causation relationships, they, nonetheless,
                                                        corroborate the Iron Law of Prohibition, which we mentioned at the beginning of the project. And at the least, what
-                                                       we can safely conclude is that increased spending on drug control is not showing any effective results.")
+                                                       we can safely conclude is that increased spending on drug control is not showing any effective results."),
                  ))))
 
                  
