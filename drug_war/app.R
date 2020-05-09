@@ -14,6 +14,7 @@ library(readxl)
 library(skimr)
 library(rvest)
 library(broom)
+library(gt)
 library(ggthemes)
 library(gganimate)
 library(shinythemes)
@@ -24,13 +25,13 @@ library(tidyverse)
 meth_purity <- read_excel("meth_purity_1981_2018_copy.xlsx")
 heroin_purity <- read_excel("heroin_purity_1981_2017_copy.xlsx")
 overdose <- read_excel("comprehensive_overdose_1999_2018_copy.xlsx")
-spending <- read_excel("drug_control_spending_1995_2018_copy.xlsx")
+spending <- read_excel("adjusted_drug_control_spending_1995-2020.xlsx")
 thc_9 <- read_excel("cannabis_thc_9_concentration_copy.xlsx")
 heroin_production <- read_excel("mexico_production_copy.xlsx")
 
 # Define UI for application that draws a histogram
 ui <- navbarPage("The War on Drugs",
-                 theme = shinytheme("cerulean"),
+                 theme = shinytheme("journal"),
                  
                  ##
                  ## About Page ##
@@ -57,11 +58,13 @@ ui <- navbarPage("The War on Drugs",
                                                      # brief explanation
                                                      
                                                      p("The U.S. War on Drugs has been going on for 4 decades, with each year witnessing a doubling down on
-                                                       spending and law enforcement. However, all these efforts seem to be futile in eradicating the drug crisis
-                                                       in the United States: the crisis is worsening. Many liberal thinkers - mainly Libertarians - 
-                                                       have been advocating for putting an end to this War, claiming that it is counterproductive. In this project,
-                                                       I intend to analyze how increased spending on drug control - through both supply and demand reduction efforts -
-                                                       affected the drug crisis situation."),
+                                                       spending and law enforcement: spending on drug prevention and treatment increased from around $7 billion
+                                                       in 1995 to over $36 billion in 2019 (values are in 2020 dollars). However, all these efforts seem to be 
+                                                       futile in eradicating the drug crisis in the United States. The crisis is worsening: data going back to 1999 show 
+                                                       an increase in total number of overdose deaths year on year leading up to 2017, peaking at 70,237 deatha, before slightly
+                                                       declining in 2018. Many liberal thinkers - mainly Libertarians - have been advocating for putting an end to this War, 
+                                                       claiming that it is counterproductive. In this project, I intend to analyze how increased spending on drug control - 
+                                                       through both supply and demand reduction efforts -affected the drug crisis situation."),
                                                      
                                                      br(),
                                                      
@@ -172,8 +175,8 @@ ui <- navbarPage("The War on Drugs",
                                        
                                        fluidRow(
                                          column(2), column(8, align="center",
-                                                mainPanel(imageOutput("spendingOverdosePlot", width = "100%")))
-                                                )),
+                                                imageOutput("spendingOverdosePlot", width = "100%")
+                                                ))),
                               
                               # correlation between spending and drug potency
                               
@@ -181,26 +184,30 @@ ui <- navbarPage("The War on Drugs",
                                        
                                        fluidRow(
                                          column(2), column(8, align="center",
-                                                 h3("Correlation Between Spending and Meth Purity in Illegal U.S. Markets", 
-                                                    align="center"),
-                                                 h4("(Spending Both on Prevention and Treatment)", 
-                                                    align = "center"),
+                                                 h3("Correlation Between Spending and Meth Purity in Illegal U.S. Markets"),
+                                                 h4("(Spending Both on Prevention and Treatment)"),
                                                  
                                                  br(),
                                                  
                                                  plotOutput("spendingMethPlot", width = "100%"),
                                                  
                                                  br(),
+                                                 
+                                                 gt_output("gt_spending_meth"),
+                                                 
+                                                 br(),
                                                  br(),
                                                  
-                                                 h3("Correlation Between Spending and Delta-9 THC Concentration in Cannabis in Illegal U.S. Markets", 
-                                                    align="center"),
-                                                 h4("(Spending Both on Prevention and Treatment)", 
-                                                    align = "center"),
+                                                 h3("Correlation Between Spending and Delta-9 THC Concentration in Cannabis in Illegal U.S. Markets"),
+                                                 h4("(Spending Both on Prevention and Treatment)"),
                                                  
                                                  br(),
                                                  
                                                  plotOutput("spendingThcPlot", width = "100%"),
+                                                 
+                                                 br(),
+                                                 
+                                                 gt_output("gt_spending_thc"),
                                                  
                                                  br(),
                                                  br()
@@ -222,7 +229,43 @@ ui <- navbarPage("The War on Drugs",
                                          column(2), column(8, align="center",
                                                 plotOutput("spendingProductionPlot", width = "100%")
                                          )
-                                       )))))
+                                       )))),
+                 
+                 ##
+                 ## Findings ##
+                 ##
+                 
+                 tabPanel("Findings",
+                          
+                          fluidRow(column(2), column(8,
+                                                     
+                                                     h4(strong("What Can We Conclude?"), align = "center"),          
+                                                     
+                                                     # brief explanation
+                                                     
+                                                     p("As we have seenin the data visualizations, the amount of money the U.S. spends
+                                                       on fighting drugs, including on treatment and on domestic and international interdiction,
+                                                       has been on an upward trend. The data at hand, which covers 1995 through 2019, show that
+                                                       total spending has spiked from around $7 billion to over $36 billion. 
+                                                       
+                                                       Other data, provided by government agencies, covering almost the same time period, suggest that
+                                                       spending is not mitigating the drug crisis, but it might be making it worse. First, 
+                                                       running total spending and total overdose deaths trends on the same plot shows us that as law
+                                                       enforcement and treatment spending was increasing, deaths from drug overdose were continuously
+                                                       rising, reaching an all-time high of over 70 thousand deaths in 2017. Second, we have seen that
+                                                       production of heroin in Mexico, the primary source of the illegal drug in U.S. markets, according to
+                                                       a Department of Justice's 2018 National Drug Threat Assessment report, has also been on the rise, despite
+                                                       the increased spending on prevention: estimates show that heroin production in Mexican labs has increased
+                                                       around 1600% from 1999/2000 to 2017/2018. Finally, when we plotted a regression between drug control spending
+                                                       and drug potency/purity, we got a positive regression line. The correlation coefficient was positive and
+                                                       strong in both cases of running total spending against the purity of methamphetamine and the concentration
+                                                       of Delta-9 THC in cannabis, around +0.81 and +0.92, respectively.
+                                                       
+                                                       Although we should not interpret these correlations as establishing causation relationships, they, nonetheless,
+                                                       corroborate the Iron Law of Prohibition, which we mentioned at the beginning of the project. And at the least, what
+                                                       we can safely conclude is that increased spending on drug control is not showing any effective results.")
+                 ))))
+
                  
                  # Define server logic required to draw a histogram
                  server <- function(input, output) {
@@ -262,10 +305,11 @@ ui <- navbarPage("The War on Drugs",
                          theme_calc() + 
                          theme(
                              axis.title.x = element_text(size = 15),
+                             axis.text = element_text(size = 15),
                              axis.title.y = element_text(size = 15, color = "#519E44")) +
                          labs(
                              x = "Year",
-                             y = "Spending in $Billions",
+                             y = "Spending in $Billions (adjusted 2020 dollars)",
                              caption = "Source: ONDCP"
                          ) +
                          ylim(0, 40) +
@@ -295,6 +339,7 @@ ui <- navbarPage("The War on Drugs",
                              ylim(0, 80000) +
                              theme_calc() +
                              theme(
+                                 axis.text = element_text(size = 15),
                                  axis.title.x = element_text(size = 15),
                                  axis.title.y = element_text(size = 15, color = "#A91F00")) +
                              labs(
@@ -316,6 +361,7 @@ ui <- navbarPage("The War on Drugs",
                              geom_line(size = 2, color = "#F16732") +
                              theme_calc() +
                              theme(
+                                 axis.text = element_text(size = 15),
                                  axis.title.x = element_text(size = 15),
                                  axis.title.y = element_text(size = 15, color = "#F16732")) +
                              labs(
@@ -334,8 +380,9 @@ ui <- navbarPage("The War on Drugs",
                              ggplot(aes(x = year, y = thc_delta_9)) +
                              geom_line(size = 2, color = "#A233F0") +
                              theme_calc() +
-                             ylim(0, 50) +
+                             ylim(0, 30) +
                              theme(
+                                 axis.text = element_text(size = 15),
                                  axis.title.x = element_text(size = 15),
                                  axis.title.y = element_text(size = 15, color = "#A233F0")) +
                              labs(
@@ -369,7 +416,7 @@ ui <- navbarPage("The War on Drugs",
                            ggplot(aes(x = year)) +
                            geom_line(aes(y = total_spending), size = 1.5, color = "#5BBC4A") +
                            geom_line(aes(y = total_deaths/2600), size = 1.5, color = "#A91F00") +
-                           scale_y_continuous(name = "Total Spending ($Billions)",
+                           scale_y_continuous(name = "Total Spending ($Billions - adjusted 2020 dollars)",
                                               sec.axis = sec_axis(~.*2600, name = "Total Deaths"),
                                               breaks = c(5, 10, 15, 20, 25, 30, 35, 40)) +
                            scale_x_continuous(name = "Year", breaks = c(2000, 2002, 2004, 2006, 2008,
@@ -381,6 +428,7 @@ ui <- navbarPage("The War on Drugs",
                            theme_calc() +
                            theme(
                                axis.title.x = element_text(size = 15),
+                               axis.text = element_text(size = 15),
                                axis.title.y = element_text(size = 15, color = "#519E44"),
                                axis.title.y.right = element_text(size = 15, color = "#A91F00", angle = 90)
                                
@@ -393,7 +441,7 @@ ui <- navbarPage("The War on Drugs",
                                      hjust = 0, color = "#5BBC4A", size = 4) +
                            transition_reveal(year)
                      
-                    # save the plot as a guf
+                    # save the plot as a gif
                        
                        animate(p, nframes = 75, renderer = gifski_renderer("outfile.gif"))
                      
@@ -401,7 +449,7 @@ ui <- navbarPage("The War on Drugs",
                      
                      list(src = "outfile.gif",
                           contentType = 'image/gif',
-                          width = 800,
+                          width = 980,
                           height = 600
                      )}, deleteFile = TRUE)
                      
@@ -426,12 +474,13 @@ ui <- navbarPage("The War on Drugs",
                              geom_bar(aes(y = mexico/5), stat="identity", size=.1, fill = "#EA9E36",
                                       color="black", alpha=.5) +
                              scale_y_continuous(
-                                 name = "Spending on Supply Reduction ($Billions)",
+                                 name = "Spending on Supply Reduction ($Billions - adjusted 2020 dollars)",
                                  sec.axis = sec_axis(~.*5, name = "Heroin Production in Mexico\n(Metric Tons)")
                              ) +
                              theme_calc() +
                              theme(
                                  axis.title.x = element_text(size = 20),
+                                 axis.text = element_text(size = 15),
                                  axis.title.y = element_text(size = 20, color = "#519E44"),
                                  axis.title.y.right = element_text(size = 20, color = "#EA9E36", angle = 90)
                                  
@@ -456,19 +505,24 @@ ui <- navbarPage("The War on Drugs",
                                 heroin = purity.y,
                                 thc_9_concentration = thc_delta_9,
                                 total = total/1000) %>% 
-                         select(year, meth, heroin, total, thc_9_concentration)
+                         select(year, total, meth, heroin, thc_9_concentration)
                        
                        spending_purity %>% 
                          ggplot(aes(x = total, y = meth * 100)) +
                          geom_point(color = "#FFC300") +
                          geom_smooth(method = "lm", se = F, color = "#900C3F") +
                          labs(
-                           x = "Spending in $Billions",
+                           x = "Spending in $Billions (adjusted 2020 dollars)",
                            y = "% Purity"
                          ) +
-                         ylim(0, 100) +
-                         theme_calc()
-                     }, heigh = 600, width = 800)
+                         theme_calc() +
+                         theme(
+                           axis.text = element_text(size = 15),
+                           axis.title.x = element_text(size = 15),
+                           axis.title.y = element_text(size = 15)
+                         ) +
+                         ylim(0, 100)
+                     }, heigh = 400, width = 700)
                      
                      # spending and thc concentration
                      
@@ -491,12 +545,37 @@ ui <- navbarPage("The War on Drugs",
                          geom_point(color = "#138D75") +
                          geom_smooth(method = "lm", se = F, color = "#900C3F") +
                          labs(
-                           x = "Spending in $Billions",
+                           x = "Spending in $Billions (adjusted 2020 dollars)",
                            y = "% Concentration"
                          ) +
-                         ylim(0, 30) +
-                         theme_calc()
-                     }, heigh = 600, width = 800)
+                         theme_calc() +
+                         theme(
+                           axis.text = element_text(size = 15),
+                           axis.title.x = element_text(size = 15),
+                           axis.title.y = element_text(size = 15)
+                         ) +
+                         ylim(0, 30) 
+                     }, heigh = 400, width = 700)
+                     
+                     # gt tables
+                     
+                     output$gt_spending_meth <- render_gt(
+                       cor(spending_purity$total, spending_purity$meth) %>%
+                         round(2) %>% 
+                         gt() %>% 
+                         tab_header(title = "Correlation Coefficient") %>%
+                         cols_label(value = "highest is 1.0") %>%
+                         cols_align(align = "center")
+                     )
+                     
+                     output$gt_spending_thc <- render_gt(
+                       cor(spending_purity$total, spending_purity$thc_9_concentration) %>%
+                         round(2) %>% 
+                         gt() %>% 
+                         tab_header(title = "Correlation Coefficient") %>%
+                         cols_label(value = "highest is 1.0") %>%
+                         cols_align(align = "center")
+                     )
                  }
                  
                  # Run the application 
